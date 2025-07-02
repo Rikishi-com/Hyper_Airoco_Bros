@@ -22,10 +22,10 @@ def timer(request):
             time = 5 * 60  # 5分換気
 
         response = {
-            "sensor_name": sensor_data["sensorName"] if sensor_data else None,
-            "co2": co2_value,
-            "ventilation": ventilation,
-            "time": time
+            "sensor_name": sensor_data["sensorName"] if sensor_data else None,  #センサー名
+            "co2": co2_value,       #CO2値
+            "ventilation": ventilation, #換気が必要かどうか
+            "time": time        #換気時間（秒）
         }
 
         return JsonResponse(response)
