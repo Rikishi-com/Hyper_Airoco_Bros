@@ -9,7 +9,6 @@ import time
 import requests
 
 
-# Create your views here.
 
 class Carbon_judge(APIView):
     """
@@ -223,35 +222,61 @@ class OneWeekRecordView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def timer(request):
-    url = "https://airoco.necolico.jp/data-api/latest?id=CgETViZ2&subscription-key=6b8aa7133ece423c836c38af01c59880"
-    try:
-        res = requests.get(url, timeout=5)
-        res.raise_for_status()
-        data = res.json()
+class CarbonTimerView(APIView):
+    def post(self, request, *args, **kwargs):
+        # POSTリクエストのボディからsensorNameを取得
+        requested_sensor = request.data.get("sensorName")
 
-        # R3-401 だけ
-        sensor_data = next(
-            (s for s in data if s["sensorName"] == "Ｒ３ー４０１"), None
-        )
+        # sensorNameがリクエストに含まれていない場合はエラーを返す
+        if not requested_sensor:
+            return Response(
+                {"error": "リクエストボディに sensorName を含めてください。"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        co2_value = sensor_data.get("co2") if sensor_data else None
-        ventilation = False
-        time = None
+        return self.get_sensor_status(requested_sensor)
 
-        if co2_value and co2_value > 500:
-            ventilation = True
-            time = 5 * 60  # 5分換気
+    def get_sensor_status(self, sensor_name):
+        """
+        APIからデータを取得し、特定のセンサーの状態を確認する
+        """
+        # APIキーとデバイスIDはURLに含まれている
+        url = "https://airoco.necolico.jp/data-api/latest?id=CgETViZ2&subscription-key=6b8aa7133ece423c836c38af01c59880"
+        try:
+            res = requests.get(url, timeout=5)
+            res.raise_for_status()  # 4xx, 5xx系のエラーステータスの場合、例外を発生させる
+            data = res.json()
 
-        response = {
-            "sensor_name": sensor_data["sensorName"] if sensor_data else None,  #センサー名
-            "co2": co2_value,       #CO2値
-            "ventilation": ventilation, #換気が必要かどうか
-            "time": time        #換気時間（秒）
-        }
+            # APIから返されたリストの中から特定のセンサーデータを検索
+            sensor_data = next(
+                (s for s in data if s.get("sensorName") == sensor_name), None
+            )
 
-        return JsonResponse(response)
-    except Exception as e:
-        return JsonResponse({"error": str(e)})
+            # デフォルト値を初期化
+            co2_value = None
+            should_ventilate = False
+            ventilation_time = None
 
+            if sensor_data:
+                co2_value = sensor_data.get("co2")
+                # CO2の値が取得でき、かつ閾値(500)を超えているかチェック
+                if co2_value is not None and co2_value > 500:
+                    should_ventilate = True
+                    ventilation_time = 5 * 60  # 5分（秒単位）
+
+            # APIViewではDRFのResponseオブジェクトを使うのが一般的
+            response_data = {
+                "sensor_name": sensor_name,  # リクエストされたセンサー名を返す
+                "co2": co2_value,
+                "ventilation": should_ventilate,
+                "time": ventilation_time,
+            }
+            return Response(response_data)
+
+        except requests.exceptions.RequestException as e:
+            # ネットワークやAPIのエラーを処理
+            return Response({"error": f"APIリクエストに失敗しました: {e}"}, status=status.HTTP_502_BAD_GATEWAY)
+        except Exception as e:
+            # その他の予期せぬエラー（JSONパースエラーなど）を処理
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
