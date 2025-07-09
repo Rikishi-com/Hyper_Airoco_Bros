@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Airoco_API'
+    'Airoco_API',
     'rest_framework',
 ]
 
