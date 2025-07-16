@@ -19,7 +19,7 @@ class Carbon_judge(APIView):
 
         API_URL = "https://airoco.necolico.jp/data-api/latest"
         DEVICE_ID = "CgETViZ2"
-        API_KEY = "6b8aa7133ece423c836c38af01c59880"
+        API_KEY =     #ここにAPIキーを""で囲んで記述する
 
         try:
             response = requests.get(API_URL,params={
@@ -75,7 +75,7 @@ class Carbon_judge(APIView):
         requested_sensor = request.data.get("sensorName")  # POSTリクエストからセンサ名を取得
         API_URL = "https://airoco.necolico.jp/data-api/latest"
         DEVICE_ID = "CgETViZ2"
-        API_KEY = "6b8aa7133ece423c836c38af01c59880"
+        API_KEY =     #ここにAPIキーを""で囲んで記述する
 
         try:
             response = requests.get(API_URL,params={
@@ -134,7 +134,7 @@ class OneWeekRecordView(APIView):
         # Here you would typically fetch and return the records for the past week
         API_URL = "https://airoco.necolico.jp/data-api/latest"
         DEVICE_ID = "CgETViZ2"
-        API_KEY = "6b8aa7133ece423c836c38af01c59880"
+        API_KEY =     #ここにAPIキーを""で囲んで記述する
         TIME = int(time.time() - 7 * 24 * 60 * 60)  # 7 days ago in seconds
 
         try:
@@ -179,7 +179,7 @@ class OneWeekRecordView(APIView):
 
         API_URL = "https://airoco.necolico.jp/data-api/day-csv"
         DEVICE_ID = "CgETViZ2"
-        API_KEY = "6b8aa7133ece423c836c38af01c59880"
+        API_KEY =     #ここにAPIキーを""で囲んで記述する
         requested_sensor = request.data.get("sensorName")
         selected_data = []
 
