@@ -241,7 +241,7 @@ class CarbonTimerView(APIView):
         APIからデータを取得し、特定のセンサーの状態を確認する
         """
         # APIキーとデバイスIDはURLに含まれている
-        url = "https://airoco.necolico.jp/data-api/latest?id=CgETViZ2&subscription-key=6b8aa7133ece423c836c38af01c59880"
+        url = "https://airoco.necolico.jp/data-api/latest?id=CgETViZ2&subscription-key="    #ここにAPIキーを記述する
         try:
             res = requests.get(url, timeout=5)
             res.raise_for_status()  # 4xx, 5xx系のエラーステータスの場合、例外を発生させる
